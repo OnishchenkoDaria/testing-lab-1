@@ -3,13 +3,13 @@ from enum import Enum
 from typing import Tuple
 
 
-@dataclass
-class Point (frozen=True):
+@dataclass(frozen=True)
+class Point:
     x: float
     y: float
 
-@dataclass
-class Line(frozen=True):
+@dataclass(frozen=True)
+class Line:
     A: float
     B: float
     C: float

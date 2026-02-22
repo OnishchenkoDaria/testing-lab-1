@@ -5,7 +5,8 @@ from utils import line_from_two_points, line_from_kb, classify_three_lines
 
 def main() -> int:
     try:
-        inp = ConsoleInputReader.read_inputs()
+        reader = ConsoleInputReader()
+        inp = reader.read_inputs()
 
         # Build lines
         l1 = line_from_two_points(inp.p11, inp.p12)
