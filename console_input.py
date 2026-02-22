@@ -2,9 +2,11 @@ from constants import MIN_V, MAX_V, EPS
 from schemas import Point, Inputs
 
 
+class InputError(Exception):
+    pass
+
+
 class ConsoleInputReader:
-    class InputError(Exception):
-        pass
 
     # reading user input value
     @staticmethod
@@ -13,7 +15,7 @@ class ConsoleInputReader:
         try:
             return int(s)
         except ValueError as e:
-            raise ConsoleInputReader.InputError(
+            raise InputError(
                 f"ERROR: int value expected - value '{s}' has type mismatch / "
                 f"out of range [{MIN_V}; {MAX_V}]."
             ) from e
@@ -21,7 +23,7 @@ class ConsoleInputReader:
     @staticmethod
     def validate_range(v: int, name: str) -> None:
         if v < MIN_V or v > MAX_V:
-            raise ConsoleInputReader.InputError(
+            raise InputError(
                 f"ERROR: value {name}={v} out of range [{MIN_V}; {MAX_V}]."
             )
 
@@ -30,7 +32,7 @@ class ConsoleInputReader:
         # checking for duplicate points
         # using exact equality here because default input is integer
         if int(p1.x) == int(p2.x) and int(p1.y) == int(p2.y):
-            raise ConsoleInputReader.InputError(
+            raise InputError(
                 f"ERROR: for {which} - two equal points ({int(p1.x)},{int(p1.y)}). "
                 f"Should satisfy (x1-x2)^2+(y1-y2)^2 != 0."
             )
@@ -38,7 +40,7 @@ class ConsoleInputReader:
     @staticmethod
     def validate_b_not_zero(b: int) -> None:
         if b == 0:
-            raise ConsoleInputReader.InputError(
+            raise InputError(
                 "ERROR: for y=kx+b parameter b equals to 0 (b != 0 required)."
             )
 
