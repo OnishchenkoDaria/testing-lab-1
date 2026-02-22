@@ -6,11 +6,6 @@ class ConsoleInputReader:
     class InputError(Exception):
         pass
 
-    # check with the accuracy value (zero check)
-    @staticmethod
-    def is_zero(z: float) -> bool:
-        return abs(z) <= EPS
-
     # reading user input value
     @staticmethod
     def read_int(prompt: str) -> int:
