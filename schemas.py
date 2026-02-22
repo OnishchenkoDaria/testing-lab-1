@@ -34,3 +34,14 @@ class ResultType(Enum):
 class Result:
     kind: ResultType
     points: Tuple[Point, ...] = ()
+
+# Input Data Schemas
+
+@dataclass(frozen=True)
+class Inputs:
+    p11: Point
+    p12: Point
+    p21: Point
+    p22: Point
+    k: int
+    b: int
