@@ -1,0 +1,19 @@
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+log/
+
+# Temporary files
+*.tmp
+temp/
+
+# Compiled object files (general)
+*.o
+*.obj
+
+# Folders for dependencies
+node_modules/
+.venv/
