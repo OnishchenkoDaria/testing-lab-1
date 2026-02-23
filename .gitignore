@@ -6,6 +6,9 @@ Thumbs.db
 *.log
 log/
 
+# Dependencies lock files
+*.lock
+
 # Temporary files
 *.tmp
 temp/
