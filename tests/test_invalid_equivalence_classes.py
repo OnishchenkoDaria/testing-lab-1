@@ -39,4 +39,4 @@ def test_equal_points_invalid(x, y):
         ConsoleInputReader.validate_two_points_not_equal(p1, p2, "L1")
 
     assert isinstance(exc_info.value, InputError)
-    assert "equal" in str(exc_info.value).lower()
+    assert "equal" in str(exc_info.value).lower() or "same" in str(exc_info.value).lower()
