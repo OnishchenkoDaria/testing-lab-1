@@ -7,54 +7,55 @@ class InputError(Exception):
 
 
 class ConsoleInputReader:
-
-    # reading user input value
     @staticmethod
     def read_int(prompt: str) -> int:
-        s = input(prompt).strip()
+        # Raises InputError on type mismatch
+        raw = input(prompt).strip()
         try:
-            return int(s)
+            return int(raw)
         except ValueError as e:
             raise InputError(
-                f"ERROR: int value expected - value '{s}' has type mismatch / "
-                f"out of range [{MIN_V}; {MAX_V}]."
+                f"ERROR: integer value expected, got '{raw}'.; "
+                f"Fix: enter an integer in range [{MIN_V}; {MAX_V}]."
             ) from e
 
     @staticmethod
     def validate_range(v: int, name: str) -> None:
         if v < MIN_V or v > MAX_V:
             raise InputError(
-                f"ERROR: value {name}={v} out of range [{MIN_V}; {MAX_V}]."
+                f"ERROR: {name}={v} is out of range [{MIN_V}; {MAX_V}].; "
+                f"Fix: enter {name} within [{MIN_V}; {MAX_V}]."
             )
 
     @staticmethod
     def validate_two_points_not_equal(p1: Point, p2: Point, which: str) -> None:
-        # checking for duplicate points
-        # using exact equality here because default input is integer
+        # validate that two points are not identical
+        # using exact equality because inputs are integers.
         if int(p1.x) == int(p2.x) and int(p1.y) == int(p2.y):
             raise InputError(
-                f"ERROR: for {which} - two equal points ({int(p1.x)},{int(p1.y)}). "
-                f"Should satisfy (x1-x2)^2+(y1-y2)^2 != 0."
+                f"ERROR: {which} has two identical points ({int(p1.x)},{int(p1.y)}).; "
+                f"Fix: enter two different points so (x1-x2)^2+(y1-y2)^2 != 0."
             )
 
     @staticmethod
     def validate_b_not_zero(b: int) -> None:
         if b == 0:
             raise InputError(
-                "ERROR: for y=kx+b parameter b equals to 0 (b != 0 required)."
+                "ERROR: parameter b equals 0 for line y=kx+b, but b!=0 is required.; "
+                "Fix: enter any non-zero integer value for b."
             )
 
     def read_inputs(self) -> Inputs:
-        print("Enter 3 sets of parameters")
-        print(f"Integer numbers in range [{MIN_V}; {MAX_V}].")
+        print("Enter parameters for 3 lines (variant 20: 2,2,5).")
+        print(f"All values must be integers in range [{MIN_V}; {MAX_V}].")
+        print("L1: two points (x11,y11) and (x12,y12)")
 
-        print("L1: two points (x11,y11) & (x12,y12)")
         x11 = self.read_int("x11 = ")
         y11 = self.read_int("y11 = ")
         x12 = self.read_int("x12 = ")
         y12 = self.read_int("y12 = ")
 
-        print("L2: two points (x21,y21) & (x22,y22)")
+        print("L2: two points (x21,y21) and (x22,y22)")
         x21 = self.read_int("x21 = ")
         y21 = self.read_int("y21 = ")
         x22 = self.read_int("x22 = ")
@@ -64,11 +65,11 @@ class ConsoleInputReader:
         k = self.read_int("k = ")
         b = self.read_int("b = ")
 
-        # range validation for all
+        # range validation for all integer inputs
         for name, v in [
             ("x11", x11), ("y11", y11), ("x12", x12), ("y12", y12),
             ("x21", x21), ("y21", y21), ("x22", x22), ("y22", y22),
-            ("k", k), ("b", b)
+            ("k", k), ("b", b),
         ]:
             self.validate_range(v, name)
 
