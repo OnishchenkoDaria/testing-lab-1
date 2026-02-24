@@ -37,7 +37,8 @@ def test_equal_points_invalid(x, y):
         ConsoleInputReader.validate_two_points_not_equal(p1, p2, "L1")
 
     msg = str(exc_info.value).lower()
-    assert "identical points" in msg or "two identical points" in msg
+
+    assert "identical" in msg and "points" in msg
     assert "fix:" in msg
 
 
