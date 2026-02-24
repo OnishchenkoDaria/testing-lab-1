@@ -47,69 +47,57 @@ def test_no_intersections_variant20(shift):
     assert res.kind == ResultType.NO_INTERSECTIONS
 
 
-@pytest.mark.parametrize("a,b,c", [
-    (1, -1, 2),
-    (MIN, MAX, 5),
-    (-5, 5, 10),
-    (-119, 3, 119),
-    (2, 3, 4),
-    (10, -20, 30),
-])
-def test_intersect_one_point(a, b, c):
-    # all pass through (0,0)
-    l1 = line_from_two_points(Point(0, 0), Point(1, a))
-    l2 = line_from_two_points(Point(0, 0), Point(1, b))
-    l3 = line_from_two_points(Point(0, 0), Point(1, c))
+# -------------------------
+# a common intersection at (p, p) for:
+# L1: y = x (points)
+# L2: y = -x + 2p (points)
+# L3: y = p (k=0, b=p) with b != 0
+# -------------------------
+@pytest.mark.parametrize("p", [-119, -50, -1, 1, 50, 119])  # exclude 0 because b must be != 0
+def test_intersect_one_point_variant20(p):
+    # L1: y = x
+    l1 = line_from_two_points(Point(0, 0), Point(10, 10))
+
+    # L2: y = -x + 2p  -> use points (0, 2p) and (2p, 0)
+    l2 = line_from_two_points(Point(0, 2 * p), Point(2 * p, 0))
+
+    # L3: y = p  -> k=0, b=p (b!=0)
+    l3 = line_from_kb(0, p)
 
     res = classify_three_lines(l1, l2, l3)
     assert res.kind == ResultType.ONE_POINT
 
 
-@pytest.mark.parametrize("shift", [
-    1,
-    MIN,
-    MAX,
-    -119,
-    119,
-    50,
-])
-def test_intersect_two_points(shift):
-    # l1: y = x
-    l1 = line_from_two_points(Point(0, 0), Point(10, 10))
+# -------------------------
+# L1 and L2 parallel
+# L3 intersects both at two different points (p,p) and (p-1,p):
 
-    # l2: y = -x
-    l2 = line_from_two_points(Point(0, 0), Point(10, -10))
-
-    # l3: parallel to l1 but shifted
-    l3 = line_from_two_points(
-        Point(0, shift),
-        Point(10, 10 + shift)
-    )
+# L1: y = x
+# L2: y = x + 1
+# L3: y = p (k=0, b=p), p != 0
+# -------------------------
+@pytest.mark.parametrize("p", [-119, -50, -1, 1, 50, 119])  # p != 0
+def test_intersect_two_points_variant20(p):
+    l1 = line_from_two_points(Point(0, 0), Point(10, 10))          # y=x
+    l2 = line_from_two_points(Point(0, 1), Point(10, 11))          # y=x+1
+    l3 = line_from_kb(0, p)                                        # y=p (b!=0)
 
     res = classify_three_lines(l1, l2, l3)
     assert res.kind == ResultType.TWO_POINTS
 
 
-@pytest.mark.parametrize("shift", [
-    1,
-    MIN,
-    MAX,
-    -119,
-    119,
-    77,
-])
-def test_three_intersection_points(shift):
-    # l1: y = x
-    l1 = line_from_two_points(Point(0, 0), Point(10, 10))
-
-    # l2: y = -x
-    l2 = line_from_two_points(Point(0, 0), Point(10, -10))
-
-    # l3: horizontal line y = shift
-    l3 = line_from_two_points(
-        Point(MIN, shift),
-        Point(MAX, shift)
-    )
+# -------------------------
+# L1: y = x
+# L2: y = -x
+# L3: y = p (k=0, b=p), p != 0
+# intersects at (0,0) for l1&l2, (p,p) for l1&l3, (-p,p) for l2&l3
+# if p != 0 -> 3 distinct points.
+# -------------------------
+@pytest.mark.parametrize("p", [-119, -50, -1, 1, 77, 119])  # p != 0
+def test_three_intersection_points_variant20(p):
+    l1 = line_from_two_points(Point(0, 0), Point(10, 10))          # y=x
+    l2 = line_from_two_points(Point(0, 0), Point(10, -10))         # y=-x
+    l3 = line_from_kb(0, p)                                        # y=p (b!=0)
 
     res = classify_three_lines(l1, l2, l3)
     assert res.kind == ResultType.THREE_POINTS
