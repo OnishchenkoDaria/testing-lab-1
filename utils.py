@@ -73,6 +73,18 @@ def classify_three_lines(l1: Line, l2: Line, l3: Line) -> Result:
     # Case 1: all coincident
     if r12 == PairRelation.COINCIDENT and r13 == PairRelation.COINCIDENT and r23 == PairRelation.COINCIDENT:
         return Result(ResultType.ALL_COINCIDENT, ())
+    # Case 2: L1 == L2 and L3 intersects -> exactly one point, compute once
+    if r12 == PairRelation.COINCIDENT and r13 == PairRelation.INTERSECT:
+        p = intersection(l1, l3)
+        return Result(ResultType.ONE_POINT, (p,))
+
+    # Extra check: symmetric cases
+    if r13 == PairRelation.COINCIDENT and r12 == PairRelation.INTERSECT:
+        p = intersection(l1, l2)
+        return Result(ResultType.ONE_POINT, (p,))
+    if r23 == PairRelation.COINCIDENT and r12 == PairRelation.INTERSECT:
+        p = intersection(l1, l2)
+        return Result(ResultType.ONE_POINT, (p,))
 
     pts = compute_unique_intersections(l1, l2, l3)
     n = len(pts)
