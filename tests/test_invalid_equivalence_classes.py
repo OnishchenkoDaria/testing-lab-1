@@ -50,7 +50,7 @@ def test_read_int_rejects_text(monkeypatch):
     monkeypatch.setattr("builtins.input", lambda _: "hello")
 
     with pytest.raises(InputError) as exc_info:
-        ConsoleInputReader.read_int("x = ")
+        ConsoleInputReader._try_parse_int("x = ")
 
     msg = str(exc_info.value).lower()
     assert "integer value expected" in msg
@@ -62,7 +62,7 @@ def test_read_int_rejects_float_string(monkeypatch):
     monkeypatch.setattr("builtins.input", lambda _: "3.14")
 
     with pytest.raises(InputError) as exc_info:
-        ConsoleInputReader.read_int("x = ")
+        ConsoleInputReader._try_parse_int("x = ")
 
     msg = str(exc_info.value).lower()
     assert "integer value expected" in msg
