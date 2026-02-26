@@ -78,10 +78,11 @@ def classify_three_lines(l1: Line, l2: Line, l3: Line) -> Result:
         p = intersection(l1, l3)
         return Result(ResultType.ONE_POINT, (p,))
 
-    # Extra check: symmetric cases
+    # Case 3: L1 == L3 and L2 intersects -> exactly one point, compute once
     if r13 == PairRelation.COINCIDENT and r12 == PairRelation.INTERSECT:
         p = intersection(l1, l2)
         return Result(ResultType.ONE_POINT, (p,))
+    # Case 4: L2 == L3 and L1 intersects -> exactly one point, compute once
     if r23 == PairRelation.COINCIDENT and r12 == PairRelation.INTERSECT:
         p = intersection(l1, l2)
         return Result(ResultType.ONE_POINT, (p,))
