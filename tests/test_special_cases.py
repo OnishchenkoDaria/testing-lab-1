@@ -75,4 +75,4 @@ def test_two_coincident_one_intersection_call(monkeypatch):
     res = utils.classify_three_lines(l1, l2, l3)
 
     assert res.kind == ResultType.ONE_POINT
-    assert calls["n"] <= 1
+    assert calls["n"] == 1
