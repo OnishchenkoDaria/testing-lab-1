@@ -45,24 +45,22 @@ def test_equal_points_invalid(x, y):
     assert "identical" in str(exc_info.value).lower()
     assert "fix:" in msg
 
-def test_read_int_rejects_text(monkeypatch):
-   # not numeric, input data type missmatch
-    monkeypatch.setattr("builtins.input", lambda _: "hello")
+def test_read_int_rejects_text():
+   # not numeric, input data type mismatch
 
     with pytest.raises(InputError) as exc_info:
-        ConsoleInputReader._try_parse_int("x = ")
+        ConsoleInputReader._try_parse_int("hello")
 
     msg = str(exc_info.value).lower()
     assert "integer value expected" in msg
     assert "fix:" in msg
 
 
-def test_read_int_rejects_float_string(monkeypatch):
+def test_read_int_rejects_float_string():
     # integer inputs, not float
-    monkeypatch.setattr("builtins.input", lambda _: "3.14")
 
     with pytest.raises(InputError) as exc_info:
-        ConsoleInputReader._try_parse_int("x = ")
+        ConsoleInputReader._try_parse_int("3.14")
 
     msg = str(exc_info.value).lower()
     assert "integer value expected" in msg
