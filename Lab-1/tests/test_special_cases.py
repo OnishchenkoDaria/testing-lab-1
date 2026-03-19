@@ -1,4 +1,3 @@
-import pytest
 import utils
 from schemas import Point, ResultType
 
