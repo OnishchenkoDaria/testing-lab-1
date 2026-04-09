@@ -20,12 +20,19 @@ class TestAddingtocart():
   
   def test_addingtocart(self):
     self.driver.get("https://agro-yakist.com.ua/")
-    self.driver.set_window_size(0, 0)
-    self.driver.find_element(By.CSS_SELECTOR, ".content-wrapper").click()
-    self.driver.find_element(By.LINK_TEXT, "Петрушка Гіганте Італія 20 г, розфасоване насіння (Україна)").click()
-    self.driver.find_element(By.ID, "button-cart").click()
+    self.driver.maximize_window()
+    # print(self.driver.current_url)
+    # print(self.driver.title)
+    # print(self.driver.page_source[:2000])
+
+    recommended = self.driver.find_element(By.XPATH, "//*[contains(text(), 'Рекомендовані товари')]")
+    self.driver.execute_script("arguments[0].scrollIntoView({block: 'start'});", recommended)
+    #self.driver.save_screenshot("page.png")
+    buttons = self.driver.find_elements(By.CSS_SELECTOR, ".custom-button-style-in-cart")
+    assert len(buttons) > 0
+    buttons[0].click()
+
     assert self.driver.find_element(By.CSS_SELECTOR, ".modal-heading").text == "Кошик"
     elements = self.driver.find_elements(By.CSS_SELECTOR, ".product-table-body-row > .name")
     assert len(elements) > 0
     assert self.driver.find_element(By.LINK_TEXT, "Петрушка Гіганте Італія 20 г, розфасоване насіння (Україна)").text == "Петрушка Гіганте Італія 20 г, розфасоване насіння (Україна)"
-  
