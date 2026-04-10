@@ -13,6 +13,8 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 class TestAddingtocart():
   def setup_method(self, method):
     self.driver = webdriver.Chrome()
+    # wait for the webpage to be fully rendered
+    self.wait = WebDriverWait(self.driver, 10) #10 sec
     self.vars = {}
   
   def teardown_method(self, method):
@@ -25,14 +27,50 @@ class TestAddingtocart():
     # print(self.driver.title)
     # print(self.driver.page_source[:2000])
 
-    recommended = self.driver.find_element(By.XPATH, "//*[contains(text(), 'Рекомендовані товари')]")
+    recommended = self.wait.until(
+        expected_conditions.presence_of_element_located(
+            (By.XPATH, "//*[contains(text(), 'Рекомендовані товари')]")
+        )
+    )
+
+    #scroll to the proper section (to be in the program's view point)
     self.driver.execute_script("arguments[0].scrollIntoView({block: 'start'});", recommended)
     #self.driver.save_screenshot("page.png")
-    buttons = self.driver.find_elements(By.CSS_SELECTOR, ".custom-button-style-in-cart")
-    assert len(buttons) > 0
-    buttons[0].click()
 
-    assert self.driver.find_element(By.CSS_SELECTOR, ".modal-heading").text == "Кошик"
-    elements = self.driver.find_elements(By.CSS_SELECTOR, ".product-table-body-row > .name")
+    # wait for at least one button visible & clickable (not just DOM render)
+    first_button = self.wait.until(
+        expected_conditions.element_to_be_clickable(
+            (By.CSS_SELECTOR, ".btn-addtocart")
+        )
+    )
+    #scroll the button itself into view before clicking
+    self.driver.execute_script(
+        "arguments[0].scrollIntoView({block: 'center'});", first_button
+    )
+    first_button.click()
+
+    # wait for the cart modal to appear
+    modal_heading = self.wait.until(
+        expected_conditions.visibility_of_element_located(
+            (By.CSS_SELECTOR, ".modal-heading")
+        )
+    )
+    assert modal_heading.text == "Кошик"
+
+    # wait for cart rows to populate
+    self.wait.until(
+        expected_conditions.presence_of_element_located(
+            (By.CSS_SELECTOR, ".product-table-body-row > .name")
+        )
+    )
+    elements = self.driver.find_elements(
+        By.CSS_SELECTOR, ".product-table-body-row > .name"
+    )
     assert len(elements) > 0
-    assert self.driver.find_element(By.LINK_TEXT, "Петрушка Гіганте Італія 20 г, розфасоване насіння (Україна)").text == "Петрушка Гіганте Італія 20 г, розфасоване насіння (Україна)"
+
+    product_link = self.wait.until(
+        expected_conditions.presence_of_element_located(
+            (By.LINK_TEXT, "Петрушка Гіганте Італія 20 г, розфасоване насіння (Україна)")
+        )
+    )
+    assert product_link.text == "Петрушка Гіганте Італія 20 г, розфасоване насіння (Україна)"
