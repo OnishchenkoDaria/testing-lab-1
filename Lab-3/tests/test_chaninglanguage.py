@@ -20,7 +20,7 @@ class TestChaninglanguage():
   
   def test_chaninglanguage(self):
     self.driver.get("https://agro-yakist.com.ua/")
-    self.driver.set_window_size(0, 0)
+    self.driver.maximize_window()   
     self.driver.find_element(By.ID, "top").click()
     assert self.driver.find_element(By.CSS_SELECTOR, "p:nth-child(1)").text == "Безкоштовна доставка «Новою поштою» та «Укрпоштою» до відділення при замовленні від 4000 грн за умови повної передплати (вага посилки — до 30 кг)"
     self.driver.find_element(By.CSS_SELECTOR, ".lang").click()
