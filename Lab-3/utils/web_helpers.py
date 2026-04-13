@@ -1,5 +1,5 @@
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support import expected_conditions
 
 
 class WebHelpers:
@@ -27,6 +27,6 @@ class WebHelpers:
             overlay = driver.find_element(by, value)
             if overlay.is_displayed():
                 overlay.click()
-                wait.until(EC.invisibility_of_element(overlay))
+                wait.until(expected_conditions.invisibility_of_element(overlay))
         except Exception:
             pass
