@@ -1,6 +1,6 @@
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions
-# import WebHelpers - fix import path
+from lab_3.utils.web_helpers import WebHelpers
 
 class BasePage:
     def __init__(self, driver, timeout=10):

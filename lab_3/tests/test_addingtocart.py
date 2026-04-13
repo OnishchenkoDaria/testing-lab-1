@@ -5,7 +5,7 @@ from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
 
 # import custom utility class
-
+from lab_3.utils.web_helpers import WebHelpers
 
 class TestAddingtocart():
   def setup_method(self, method):
