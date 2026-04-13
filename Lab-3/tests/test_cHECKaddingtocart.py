@@ -23,8 +23,28 @@ class TestCHECKaddingtocart():
   def test_cHECKaddingtocart(self):
     self.driver.get("https://agro-yakist.com.ua/")
     self.driver.maximize_window()
-    self.driver.find_element(By.CSS_SELECTOR, "#cart > .btn").click()
-    assert self.driver.find_element(By.CSS_SELECTOR, ".modal-heading").text == "Кошик"
-    elements = self.driver.find_elements(By.CSS_SELECTOR, ".product-table-body-row:nth-child(1) > .remove")
+
+    cart_button = self.wait.until(
+        expected_conditions.element_to_be_clickable(
+            (By.CSS_SELECTOR, "#cart > .btn")
+        )
+    ) #waiting for the cart button to be clickable
+    cart_button.click()
+
+    modal_heading= self.wait.until(
+        expected_conditions.visibility_of_element_located(
+                (By.CSS_SELECTOR, ".modal-heading")
+            )
+    )
+    assert modal_heading.text == "Кошик"
+
+    self.wait.until(
+        expected_conditions.presence_of_element_located(
+            (By.CSS_SELECTOR, ".product-table-body-row:nth-child(1) > .remove")
+        )
+    )
+    elements = self.driver.find_elements(
+        By.CSS_SELECTOR, ".product-table-body-row:nth-child(1) > .remove"
+    )
     assert len(elements) > 0
   
