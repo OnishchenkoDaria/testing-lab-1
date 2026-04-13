@@ -13,6 +13,8 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 class TestCHECKaddingtocart():
   def setup_method(self, method):
     self.driver = webdriver.Chrome()
+    # wait for the webpage to be fully rendered
+    self.wait = WebDriverWait(self.driver, 10)  # 10 sec
     self.vars = {}
   
   def teardown_method(self, method):
@@ -20,7 +22,7 @@ class TestCHECKaddingtocart():
   
   def test_cHECKaddingtocart(self):
     self.driver.get("https://agro-yakist.com.ua/")
-    self.driver.set_window_size(0, 0)
+    self.driver.maximize_window()
     self.driver.find_element(By.CSS_SELECTOR, "#cart > .btn").click()
     assert self.driver.find_element(By.CSS_SELECTOR, ".modal-heading").text == "Кошик"
     elements = self.driver.find_elements(By.CSS_SELECTOR, ".product-table-body-row:nth-child(1) > .remove")
