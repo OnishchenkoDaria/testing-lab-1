@@ -2,6 +2,7 @@ from selenium.common import TimeoutException
 from selenium.webdriver.common.by import By
 from lab_3.pom.base_page import BasePage
 from lab_3.utils.web_helpers import WebHelpers
+from selenium.webdriver.support import expected_conditions
 
 
 class HomePage(BasePage):
@@ -10,8 +11,12 @@ class HomePage(BasePage):
     RECOMMENDED_SECTION = (By.XPATH, "//*[contains(text(), 'Рекомендовані товари')]")
     MENU_MASK = (By.ID, "menuMask")
     ADD_TO_CART_BUTTON = (By.CSS_SELECTOR, ".btn-addtocart")
+    CART_BUTTON = (By.CSS_SELECTOR, "#cart > .btn")
     MODAL_HEADING = (By.CSS_SELECTOR, ".modal-heading")
+    CART_REMOVE_BUTTONS = (By.CSS_SELECTOR, ".product-table-body-row .remove")
     CART_PRODUCT_NAMES = (By.CSS_SELECTOR, ".product-table-body-row > .name")
+    MODAL_OVERLAY = (By.CSS_SELECTOR, ".mfp-container")
+    MODAL_CLOSE_BUTTON = (By.CSS_SELECTOR, ".mfp-close")
 
     PROMO_TEXT = (By.CSS_SELECTOR, "p:nth-child(1)")
     LANGUAGE_DROPDOWN = (By.CSS_SELECTOR, ".lang")
@@ -68,3 +73,18 @@ class HomePage(BasePage):
         russian_option = self.wait_clickable(self.RUSSIAN_LANGUAGE_OPTION)
         russian_option.click()
         WebHelpers.wait_for_page_ready(self.driver)
+
+    def open_cart(self):
+        #wait for modal overlay to disappear
+        try:
+            self.wait.until(expected_conditions.invisibility_of_element_located(self.MODAL_OVERLAY))
+        except TimeoutException:
+            pass
+        #cart button render in DOM
+        cart_btn = self.wait_present(self.CART_BUTTON)
+        self.scroll_to_element(cart_btn)
+        #JS click
+        self.js_click(cart_btn)
+
+    def get_cart_remove_buttons(self):
+        return self.find_all(self.CART_REMOVE_BUTTONS)
