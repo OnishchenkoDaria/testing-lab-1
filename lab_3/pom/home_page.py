@@ -40,6 +40,9 @@ class HomePage(BasePage):
     LANGUAGE_DROPDOWN = (By.CSS_SELECTOR, ".lang")
     RUSSIAN_LANGUAGE_OPTION = (By.LINK_TEXT, "Русский")
 
+    LOGIN_MENU = (By.CSS_SELECTOR, ".pull-right:nth-child(2) .hidden-sm")
+    LOGIN_LINK = (By.LINK_TEXT, "Вхід")
+
     def open_home_page(self):
         self.driver.get(self.URL)
         WebHelpers.wait_for_page_ready(self.driver)
@@ -66,6 +69,30 @@ class HomePage(BasePage):
 
     def get_search_result_heading(self):
         return self.driver.find_element(By.CSS_SELECTOR, "h2").text
+
+    def navigate_to_login_page(self):
+        menu = WebDriverWait(self.driver, 10).until(
+            expected_conditions.element_to_be_clickable(self.LOGIN_MENU)
+        )
+        menu.click()
+
+        login_link = WebDriverWait(self.driver, 10).until(
+            expected_conditions.element_to_be_clickable(self.LOGIN_LINK)
+        )
+        login_link.click()
+
+    def login_into_system(self):
+        self.driver.find_element(By.ID, "input-password").click()
+        self.driver.find_element(By.ID, "input-email").click()
+        self.driver.find_element(By.ID, "input-email").send_keys("0507odv2005@gmail.com")
+        self.driver.find_element(By.ID, "input-password").click()
+        self.driver.find_element(By.ID, "input-password").send_keys("123456wrong")
+        self.driver.find_element(By.LINK_TEXT, "Вхід").click()
+        return
+
+    def get_login_message(self):
+        message = self.driver.find_element(By.CSS_SELECTOR, ".alert").text
+        return " ".join(message.split())
 
     def get_first_add_to_cart_button_element(self):
         self.scroll_to_recommended_section()
