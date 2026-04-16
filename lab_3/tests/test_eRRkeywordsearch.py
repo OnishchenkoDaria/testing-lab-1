@@ -10,6 +10,9 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
+from lab_3.pom.home_page import HomePage
+
+
 class TestERRkeywordsearch():
   def setup_method(self, method):
     self.driver = webdriver.Chrome()
@@ -19,11 +22,11 @@ class TestERRkeywordsearch():
     self.driver.quit()
   
   def test_eRRkeywordsearch(self):
-    self.driver.get("https://agro-yakist.com.ua/")
-    self.driver.set_window_size(0, 0)
-    self.driver.find_element(By.ID, "inputs").click()
-    self.driver.find_element(By.ID, "inputs").send_keys("qwerty123nonexistent")
-    self.driver.find_element(By.ID, "inputs").send_keys(Keys.ENTER)
-    assert self.driver.find_element(By.CSS_SELECTOR, "p:nth-child(4)").text == "Немає продуктів які б відповідали критеріям пошуку."
-    assert self.driver.find_element(By.CSS_SELECTOR, "h2").text == "Товари, які відповідають критеріям пошуку"
+    home_page = HomePage(self.driver)
+
+    home_page.open_home_page()
+    home_page.type_in_search_bar("qwerty123nonexistent")
+
+    assert home_page.get_search_result_contents() == "Немає продуктів які б відповідали критеріям пошуку."
+    assert home_page.get_search_result_heading() == "Товари, які відповідають критеріям пошуку"
   

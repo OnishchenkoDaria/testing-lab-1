@@ -1,5 +1,6 @@
 from selenium.common import TimeoutException, NoSuchElementException
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.wait import WebDriverWait
 import re
 
@@ -54,6 +55,17 @@ class HomePage(BasePage):
             self.MENU_MASK[0],
             self.MENU_MASK[1]
         )
+
+    def type_in_search_bar(self, text: str):
+        self.driver.find_element(By.ID, "inputs").click()
+        self.driver.find_element(By.ID, "inputs").send_keys(text)
+        self.driver.find_element(By.ID, "inputs").send_keys(Keys.ENTER)
+
+    def get_search_result_contents(self):
+        return self.driver.find_element(By.CSS_SELECTOR, "p:nth-child(4)").text
+
+    def get_search_result_heading(self):
+        return self.driver.find_element(By.CSS_SELECTOR, "h2").text
 
     def get_first_add_to_cart_button_element(self):
         self.scroll_to_recommended_section()
