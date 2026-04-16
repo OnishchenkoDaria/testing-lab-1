@@ -39,6 +39,7 @@ class HomePage(BasePage):
     PROMO_TEXT = (By.CSS_SELECTOR, "p:nth-child(1)")
     LANGUAGE_DROPDOWN = (By.CSS_SELECTOR, ".lang")
     RUSSIAN_LANGUAGE_OPTION = (By.LINK_TEXT, "Русский")
+    UKRAINIAN_LANGUAGE_OPTION = (By.LINK_TEXT, "Українська")
 
     SEARCH_BAR = (By.ID, "inputs")
     SEARCH_RESULTS_HEADING = (By.CSS_SELECTOR, "h2")
@@ -175,9 +176,21 @@ class HomePage(BasePage):
         except TimeoutException:
             return False
 
+    def is_ukrainian_language_option_present(self):
+        try:
+            self.wait_visible(self.UKRAINIAN_LANGUAGE_OPTION)
+            return True
+        except TimeoutException:
+            return False
+
     def switch_language_to_russian(self):
         russian_option = self.wait_clickable(self.RUSSIAN_LANGUAGE_OPTION)
         russian_option.click()
+        WebHelpers.wait_for_page_ready(self.driver)
+
+    def switch_language_to_ukrainian(self):
+        ukrainian_option = self.wait_clickable(self.UKRAINIAN_LANGUAGE_OPTION)
+        ukrainian_option.click()
         WebHelpers.wait_for_page_ready(self.driver)
 
     def close_cart_modal(self):
