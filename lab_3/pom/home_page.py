@@ -90,16 +90,13 @@ class HomePage(BasePage):
         login_link.click()
 
     def login_into_system(self):
-        #self.driver.find_element(self.PASSWORD_FIELD).click()
-        self.driver.find_element(self.EMAIL_FIELD).click()
-        self.driver.find_element(self.EMAIL_FIELD).send_keys("0507odv2005@gmail.com")
-        self.driver.find_element(self.PASSWORD_FIELD).click()
-        self.driver.find_element(self.PASSWORD_FIELD).send_keys("123456wrong")
-        self.driver.find_element(self.LOGIN_SUBMIT_BTN).click()
+        self.wait_visible(self.EMAIL_FIELD).send_keys("0507odv2005@gmail.com")
+        self.wait_visible(self.PASSWORD_FIELD).send_keys("123456wrong")
+        self.wait_clickable(self.LOGIN_SUBMIT_BTN).click()
         return
 
     def get_login_message(self):
-        message = self.driver.find_element(self.LOGIN_ERR_MSG).text
+        message = self.wait_visible(self.LOGIN_ERR_MSG).text
         return " ".join(message.split())
 
     def get_first_add_to_cart_button_element(self):
