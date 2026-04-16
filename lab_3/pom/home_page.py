@@ -41,8 +41,8 @@ class HomePage(BasePage):
     RUSSIAN_LANGUAGE_OPTION = (By.LINK_TEXT, "Русский")
 
     SEARCH_BAR = (By.ID, "inputs")
-    SEARCH_RESULTS_HEADING = (By.CSS_SELECTOR, "p:nth-child(4)")
-    SEARCH_RESULTS_DESCRIPTION = (By.CSS_SELECTOR, "h2")
+    SEARCH_RESULTS_HEADING = (By.CSS_SELECTOR, "h2")
+    SEARCH_RESULTS_DESCRIPTION = (By.CSS_SELECTOR, "p:nth-child(4)")
 
     LOGIN_MENU = (By.CSS_SELECTOR, ".pull-right:nth-child(2) .hidden-sm")
     LOGIN_LINK = (By.LINK_TEXT, "Вхід")
@@ -68,15 +68,15 @@ class HomePage(BasePage):
         )
 
     def type_in_search_bar(self, text: str):
-        self.driver.find_element(self.SEARCH_BAR).click()
-        self.driver.find_element(self.SEARCH_BAR).send_keys(text)
-        self.driver.find_element(self.SEARCH_BAR).send_keys(Keys.ENTER)
+        self.wait_visible(self.SEARCH_BAR).click()
+        self.wait_visible(self.SEARCH_BAR).send_keys(text)
+        self.wait_visible(self.SEARCH_BAR).send_keys(Keys.ENTER)
 
     def get_search_result_contents(self):
-        return self.driver.find_element(self.SEARCH_RESULTS_DESCRIPTION).text
+        return self.wait_visible(self.SEARCH_RESULTS_DESCRIPTION).text
 
     def get_search_result_heading(self):
-        return self.driver.find_element(self.SEARCH_RESULTS_HEADING).text
+        return self.wait_visible(self.SEARCH_RESULTS_HEADING).text
 
     def navigate_to_login_page(self):
         menu = WebDriverWait(self.driver, 10).until(
