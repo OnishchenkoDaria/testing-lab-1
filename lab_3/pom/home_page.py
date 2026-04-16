@@ -1,5 +1,8 @@
 from selenium.common import TimeoutException, NoSuchElementException
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
+import re
+
 from lab_3.pom.base_page import BasePage
 from lab_3.utils.web_helpers import WebHelpers
 from selenium.webdriver.support import expected_conditions
@@ -10,13 +13,27 @@ class HomePage(BasePage):
 
     RECOMMENDED_SECTION = (By.XPATH, "//*[contains(text(), 'Рекомендовані товари')]")
     MENU_MASK = (By.ID, "menuMask")
-    ADD_TO_CART_BUTTON = (By.CSS_SELECTOR, ".btn-addtocart")
-    CART_BUTTON = (By.CSS_SELECTOR, "#cart > .btn")
     MODAL_HEADING = (By.CSS_SELECTOR, ".modal-heading")
-    CART_REMOVE_BUTTONS = (By.CSS_SELECTOR, ".product-table-body-row .remove")
-    CART_PRODUCT_NAMES = (By.CSS_SELECTOR, ".product-table-body-row > .name")
     MODAL_OVERLAY = (By.CSS_SELECTOR, ".mfp-container")
     MODAL_CLOSE_BUTTON = (By.CSS_SELECTOR, ".mfp-close")
+
+    ADD_TO_CART_BUTTON = (By.CSS_SELECTOR, ".btn-addtocart")
+    CART_BUTTON = (By.CSS_SELECTOR, "#cart > .btn")
+    CART_REMOVE_BUTTONS = (By.CSS_SELECTOR, ".product-table-body-row .remove")
+    CART_PRODUCT_NAMES = (By.CSS_SELECTOR, ".product-table-body-row > .name")
+    CART_PRODUCT_ROWS = (By.CSS_SELECTOR, "div.product-table-body-row")
+    CART_QTY_PLUS = (By.CSS_SELECTOR, "div.quantity div.inner div:first-child")
+    CART_QTY_MINUS = (By.CSS_SELECTOR, "div.quantity div.inner div:last-child")
+    CART_QTY_INPUT = (By.CSS_SELECTOR, "div.quantity div.inner div:nth-child(2)")
+    CART_ROW_PRICE = (By.CSS_SELECTOR, "div.product-table-body-row div.price")
+    CART_ROW_TOTAL = (By.CSS_SELECTOR, "div.product-table-body-row div.total")
+    CART_SUMMARY = (By.CSS_SELECTOR, "div.totals div#total-order")
+    CART_PRODUCT_NAME = (By.CSS_SELECTOR, "div.name-left a")
+    CART_STOCK_TEXT = (By.CSS_SELECTOR, "div.stock-text")
+    CART_REMOVE_BTN = (By.CSS_SELECTOR, "div.remove input[type='button']")
+    CART_EMPTY_MSG = (By.XPATH, "//*[contains(text(),'порожній') or contains(text(),'немає товарів')]")
+    BTN_CONTINUE = (By.XPATH, "//*[contains(text(),'Продовжити покупки')]")
+    BTN_CHECKOUT = (By.XPATH, "//*[contains(text(),'Оформлення замовлення')]")
 
     PROMO_TEXT = (By.CSS_SELECTOR, "p:nth-child(1)")
     LANGUAGE_DROPDOWN = (By.CSS_SELECTOR, ".lang")
@@ -128,3 +145,87 @@ class HomePage(BasePage):
 
     def get_cart_remove_buttons(self):
         return self.find_all(self.CART_REMOVE_BUTTONS)
+
+    def remove_first_product_from_cart(self):
+        remove_buttons = self.get_cart_remove_buttons()
+        if not remove_buttons:
+            raise AssertionError("No remove button found in cart.")
+        self.js_click(remove_buttons[0])
+
+    def _wait_for_cart_update(self, timeout: int = 5) -> None:
+        """Wait until the totals stop changing (cart AJAX is done)."""
+        import time
+        time.sleep(0.4)  # minimal settle; replace with staleness check
+        WebDriverWait(self.driver, timeout).until(
+            expected_conditions.presence_of_element_located(self.CART_SUMMARY)
+        )
+
+    def is_cart_empty(self) -> bool:
+        try:
+            WebDriverWait(self.driver, 4).until(
+                lambda d: len(d.find_elements(*self.CART_PRODUCT_ROWS)) == 0
+                or any(
+                    e.is_displayed()
+                    for e in d.find_elements(*self.CART_EMPTY_MSG)
+                )
+            )
+        except Exception:
+            pass  # fall through to explicit checks below
+
+        rows = self.driver.find_elements(*self.CART_PRODUCT_ROWS)
+        if rows:
+            return False
+        empty_els = self.driver.find_elements(*self.CART_EMPTY_MSG)
+        return len(empty_els) > 0 and empty_els[0].is_displayed()
+
+    def get_cart_product_quantity(self) -> int:
+        el = WebDriverWait(self.driver, 5).until(
+            expected_conditions.visibility_of_element_located(self.CART_QTY_INPUT)
+        )
+        return int((el.text or "1").strip())
+
+    def increase_cart_quantity(self) -> None:
+        btn = WebDriverWait(self.driver, 5).until(
+            expected_conditions.presence_of_element_located(self.CART_QTY_PLUS)
+        )
+        self.driver.execute_script("arguments[0].click();", btn)
+        self._wait_for_cart_update()
+
+    def decrease_cart_quantity(self) -> None:
+        btn = WebDriverWait(self.driver, 5).until(
+            expected_conditions.presence_of_element_located(self.CART_QTY_MINUS)
+        )
+        self.driver.execute_script("arguments[0].click();", btn)
+        self._wait_for_cart_update()
+
+    def click_continue_shopping(self) -> None:
+        btn = WebDriverWait(self.driver, 5).until(
+            expected_conditions.presence_of_element_located(self.BTN_CONTINUE)
+        )
+        self.driver.execute_script("arguments[0].click();", btn)
+
+    def click_checkout(self) -> None:
+        btn = WebDriverWait(self.driver, 5).until(
+            expected_conditions.presence_of_element_located(self.BTN_CHECKOUT)
+        )
+        self.driver.execute_script("arguments[0].click();", btn)
+
+    @staticmethod
+    def _parse_price(text: str) -> float:
+        text = text.replace(" ", "")  #remove space in thousands
+        match = re.search(r"\d+[.,]?\d*", text)
+        if match:
+            return float(match.group().replace(",", "."))
+        return 0.0
+
+    def get_cart_row_price(self) -> float:
+        el = self.driver.find_element(*self.CART_ROW_PRICE)
+        return self._parse_price(el.text)
+
+    def get_cart_row_total(self) -> float:
+        el = self.driver.find_element(*self.CART_ROW_TOTAL)
+        return self._parse_price(el.text)
+
+    def get_cart_summary_total(self) -> float:
+        el = self.driver.find_element(*self.CART_SUMMARY)
+        return self._parse_price(el.text)
