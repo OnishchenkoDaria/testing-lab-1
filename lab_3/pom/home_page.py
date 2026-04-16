@@ -40,8 +40,16 @@ class HomePage(BasePage):
     LANGUAGE_DROPDOWN = (By.CSS_SELECTOR, ".lang")
     RUSSIAN_LANGUAGE_OPTION = (By.LINK_TEXT, "Русский")
 
+    SEARCH_BAR = (By.ID, "inputs")
+    SEARCH_RESULTS_HEADING = (By.CSS_SELECTOR, "p:nth-child(4)")
+    SEARCH_RESULTS_DESCRIPTION = (By.CSS_SELECTOR, "h2")
+
     LOGIN_MENU = (By.CSS_SELECTOR, ".pull-right:nth-child(2) .hidden-sm")
     LOGIN_LINK = (By.LINK_TEXT, "Вхід")
+    PASSWORD_FIELD = (By.ID, "input-password")
+    EMAIL_FIELD = (By.ID, "input-email")
+    LOGIN_SUBMIT_BTN = (By.LINK_TEXT, "Вхід")
+    LOGIN_ERR_MSG = (By.CSS_SELECTOR, ".alert")
 
     def open_home_page(self):
         self.driver.get(self.URL)
@@ -60,15 +68,15 @@ class HomePage(BasePage):
         )
 
     def type_in_search_bar(self, text: str):
-        self.driver.find_element(By.ID, "inputs").click()
-        self.driver.find_element(By.ID, "inputs").send_keys(text)
-        self.driver.find_element(By.ID, "inputs").send_keys(Keys.ENTER)
+        self.driver.find_element(self.SEARCH_BAR).click()
+        self.driver.find_element(self.SEARCH_BAR).send_keys(text)
+        self.driver.find_element(self.SEARCH_BAR).send_keys(Keys.ENTER)
 
     def get_search_result_contents(self):
-        return self.driver.find_element(By.CSS_SELECTOR, "p:nth-child(4)").text
+        return self.driver.find_element(self.SEARCH_RESULTS_DESCRIPTION).text
 
     def get_search_result_heading(self):
-        return self.driver.find_element(By.CSS_SELECTOR, "h2").text
+        return self.driver.find_element(self.SEARCH_RESULTS_HEADING).text
 
     def navigate_to_login_page(self):
         menu = WebDriverWait(self.driver, 10).until(
@@ -82,16 +90,16 @@ class HomePage(BasePage):
         login_link.click()
 
     def login_into_system(self):
-        self.driver.find_element(By.ID, "input-password").click()
-        self.driver.find_element(By.ID, "input-email").click()
-        self.driver.find_element(By.ID, "input-email").send_keys("0507odv2005@gmail.com")
-        self.driver.find_element(By.ID, "input-password").click()
-        self.driver.find_element(By.ID, "input-password").send_keys("123456wrong")
-        self.driver.find_element(By.LINK_TEXT, "Вхід").click()
+        #self.driver.find_element(self.PASSWORD_FIELD).click()
+        self.driver.find_element(self.EMAIL_FIELD).click()
+        self.driver.find_element(self.EMAIL_FIELD).send_keys("0507odv2005@gmail.com")
+        self.driver.find_element(self.PASSWORD_FIELD).click()
+        self.driver.find_element(self.PASSWORD_FIELD).send_keys("123456wrong")
+        self.driver.find_element(self.LOGIN_SUBMIT_BTN).click()
         return
 
     def get_login_message(self):
-        message = self.driver.find_element(By.CSS_SELECTOR, ".alert").text
+        message = self.driver.find_element(self.LOGIN_ERR_MSG).text
         return " ".join(message.split())
 
     def get_first_add_to_cart_button_element(self):
