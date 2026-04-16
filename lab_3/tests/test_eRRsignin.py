@@ -20,7 +20,7 @@ class TestERRsignin():
   
   def test_eRRsignin(self):
     self.driver.get("https://agro-yakist.com.ua/")
-    self.driver.set_window_size(0, 0)
+    self.driver.maximize_window()
     self.driver.find_element(By.CSS_SELECTOR, ".pull-right:nth-child(2) .hidden-sm").click()
     self.driver.find_element(By.LINK_TEXT, "Вхід").click()
     self.driver.find_element(By.ID, "input-password").click()
@@ -29,5 +29,6 @@ class TestERRsignin():
     self.driver.find_element(By.ID, "input-password").click()
     self.driver.find_element(By.ID, "input-password").send_keys("123456wrong")
     self.driver.find_element(By.LINK_TEXT, "Вхід").click()
-    assert self.driver.find_element(By.CSS_SELECTOR, ".alert").text == "× E-Mail і/чи пароль не співпадають."
+    message = self.driver.find_element(By.CSS_SELECTOR, ".alert").text
+    assert " ".join(message.split())  == "× E-Mail і/чи пароль не співпадають."
   
