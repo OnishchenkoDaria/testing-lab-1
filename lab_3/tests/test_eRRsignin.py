@@ -16,6 +16,6 @@ class TestERRsignin():
 
         home_page.open_home_page()
         home_page.navigate_to_login_page()
-        home_page.login_into_system()
+        home_page.login_into_system("0507odv2005@gmail.com", "123456wrong")
         assert home_page.get_login_message() == "× E-Mail і/чи пароль не співпадають."
 

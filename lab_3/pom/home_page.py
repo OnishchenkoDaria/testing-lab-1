@@ -52,6 +52,7 @@ class HomePage(BasePage):
     EMAIL_FIELD = (By.ID, "input-email")
     LOGIN_SUBMIT_BTN = (By.LINK_TEXT, "Вхід")
     LOGIN_ERR_MSG = (By.CSS_SELECTOR, ".alert")
+    USER_LOGGED_NAME = (By.CSS_SELECTOR, "h1")
 
     def open_home_page(self):
         self.driver.get(self.URL)
@@ -101,15 +102,18 @@ class HomePage(BasePage):
         )
         login_link.click()
 
-    def login_into_system(self):
-        self.wait_visible(self.EMAIL_FIELD).send_keys("0507odv2005@gmail.com")
-        self.wait_visible(self.PASSWORD_FIELD).send_keys("123456wrong")
+    def login_into_system(self, email: str, password: str):
+        self.wait_visible(self.EMAIL_FIELD).send_keys(email)
+        self.wait_visible(self.PASSWORD_FIELD).send_keys(password)
         self.wait_clickable(self.LOGIN_SUBMIT_BTN).click()
         return
 
     def get_login_message(self):
         message = self.wait_visible(self.LOGIN_ERR_MSG).text
         return " ".join(message.split())
+
+    def get_user_name(self):
+        return self.wait_visible(self.USER_LOGGED_NAME).text
 
     def get_first_add_to_cart_button_element(self):
         self.scroll_to_recommended_section()
