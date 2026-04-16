@@ -43,7 +43,8 @@ class HomePage(BasePage):
     SEARCH_BAR = (By.ID, "inputs")
     SEARCH_RESULTS_HEADING = (By.CSS_SELECTOR, "h2")
     SEARCH_RESULTS_DESCRIPTION = (By.CSS_SELECTOR, "p:nth-child(4)")
-
+    SEARCH_RESULTS_CONTENTS = (By.CSS_SELECTOR, ".product-layout:nth-child(1) > .product-thumb")
+    PRODUCT_SPECIFICATION = (By.CSS_SELECTOR, ".specification tr:nth-child(4) > td:nth-child(2)")
     LOGIN_MENU = (By.CSS_SELECTOR, ".pull-right:nth-child(2) .hidden-sm")
     LOGIN_LINK = (By.LINK_TEXT, "Вхід")
     PASSWORD_FIELD = (By.ID, "input-password")
@@ -75,8 +76,18 @@ class HomePage(BasePage):
     def get_search_result_contents(self):
         return self.wait_visible(self.SEARCH_RESULTS_DESCRIPTION).text
 
+    def get_search_results(self):
+        return self.find_all(self.SEARCH_RESULTS_CONTENTS)
+
     def get_search_result_heading(self):
         return self.wait_visible(self.SEARCH_RESULTS_HEADING).text
+
+    def navigate_to_item_by_name(self, name: str):
+        self.driver.find_element(By.LINK_TEXT, name).click()
+        return
+
+    def  get_product_specification(self) -> str:
+        return self.wait_visible(self.PRODUCT_SPECIFICATION).text
 
     def navigate_to_login_page(self):
         menu = WebDriverWait(self.driver, 10).until(
