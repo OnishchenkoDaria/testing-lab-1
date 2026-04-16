@@ -1,4 +1,4 @@
-from selenium.common import TimeoutException
+from selenium.common import TimeoutException, NoSuchElementException
 from selenium.webdriver.common.by import By
 from lab_3.pom.base_page import BasePage
 from lab_3.utils.web_helpers import WebHelpers
@@ -38,14 +38,44 @@ class HomePage(BasePage):
             self.MENU_MASK[1]
         )
 
-    def click_first_add_to_cart_button(self):
-        first_button = self.wait_clickable(self.ADD_TO_CART_BUTTON)
-        self.scroll_to_element(first_button, block="center")
-        self.js_click(first_button)
-
-    def add_first_recommended_product_to_cart(self):
+    def get_first_add_to_cart_button_element(self):
         self.scroll_to_recommended_section()
         self.close_menu_mask_if_present()
+        first_button = self.wait_clickable(self.ADD_TO_CART_BUTTON)
+        self.scroll_to_element(first_button, block="center")
+        return first_button
+
+    def click_first_add_to_cart_button(self):
+        first_button = self.get_first_add_to_cart_button_element()
+        self.js_click(first_button)
+
+    def get_first_recommended_product_name(self):
+        self.scroll_to_recommended_section()
+        self.close_menu_mask_if_present()
+
+        first_button = self.wait_clickable(self.ADD_TO_CART_BUTTON)
+
+        # Try to find product name near the button
+        try:
+            product_name_element = first_button.find_element(
+                By.XPATH,
+                ".//preceding::a[normalize-space()][1]"
+            )
+            return product_name_element.text.strip()
+        except:
+            pass
+
+        # fallback: search globally but pick first visible meaningful name
+        elements = self.driver.find_elements(By.XPATH, "//a[normalize-space()]")
+
+        for el in elements:
+            text = el.text.strip()
+            if len(text) > 5:  # filter junk like icons
+                return text
+
+        raise AssertionError("Could not determine product name")
+
+    def add_first_recommended_product_to_cart(self):
         self.click_first_add_to_cart_button()
 
     def get_cart_modal_heading(self):
@@ -54,6 +84,10 @@ class HomePage(BasePage):
     def get_cart_products(self):
         self.wait_present(self.CART_PRODUCT_NAMES)
         return self.find_all(self.CART_PRODUCT_NAMES)
+
+    def get_first_cart_product_name(self) -> str:
+        product = self.get_cart_products()[0]
+        return product.text.split("\n")[0].strip()
 
     def get_promo_text(self):
         return self.wait_visible(self.PROMO_TEXT).text
@@ -74,16 +108,22 @@ class HomePage(BasePage):
         russian_option.click()
         WebHelpers.wait_for_page_ready(self.driver)
 
+    def close_cart_modal(self):
+        try:
+            close_btn = self.wait_clickable(self.MODAL_CLOSE_BUTTON)
+            self.js_click(close_btn)
+            self.wait.until(expected_conditions.invisibility_of_element_located(self.MODAL_OVERLAY))
+        except TimeoutException:
+            pass
+
     def open_cart(self):
-        #wait for modal overlay to disappear
         try:
             self.wait.until(expected_conditions.invisibility_of_element_located(self.MODAL_OVERLAY))
         except TimeoutException:
             pass
-        #cart button render in DOM
+
         cart_btn = self.wait_present(self.CART_BUTTON)
         self.scroll_to_element(cart_btn)
-        #JS click
         self.js_click(cart_btn)
 
     def get_cart_remove_buttons(self):
