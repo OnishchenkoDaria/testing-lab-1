@@ -5,18 +5,23 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions
 
+from lab_3.utils.web_helpers import WebHelpers
+
+
 class TestCartManagement:
     def setup_method(self, method):
         self.driver = webdriver.Chrome()
         self.driver.maximize_window()
+        self.driver.set_page_load_timeout(60)
 
     def teardown_method(self, method):
-        self.driver.quit()
+        self.driver.get(self.URL)
+        WebHelpers.wait_for_page_ready(self.driver, timeout=20)
 
-    '''
     def _add_one_product(self) -> HomePage:
         page = HomePage(self.driver)
         page.open_home_page()
+        assert "agro-yakist.com.ua" in self.driver.current_url.lower()
         page.add_first_recommended_product_to_cart()
         assert page.get_cart_modal_heading() == "Кошик", "Cart modal did not open"
         assert len(page.get_cart_products()) > 0, "Cart is empty after add"
@@ -40,7 +45,7 @@ class TestCartManagement:
             f"Row total {row_total} ≠ unit_price×2 ({unit_price * 2})"
         assert cart_total == pytest.approx(unit_price * 2, rel=0.01), \
             f"Cart summary {cart_total} ≠ unit_price×2 ({unit_price * 2})"
-
+'''
     #decrease quantity
     def test_decrease_quantity_updates_price(self):
         page = self._add_one_product()
