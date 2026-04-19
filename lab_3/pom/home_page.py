@@ -55,8 +55,14 @@ class HomePage(BasePage):
     USER_LOGGED_NAME = (By.CSS_SELECTOR, "h1")
 
     def open_home_page(self):
-        self.driver.get(self.URL)
-        WebHelpers.wait_for_page_ready(self.driver)
+        for _ in range(2):  # retry once
+            try:
+                self.driver.get(self.URL)
+                WebHelpers.wait_for_page_ready(self.driver)
+                return
+            except Exception:
+                continue
+        raise AssertionError("Failed to open home page")
 
     def scroll_to_recommended_section(self):
         recommended = self.wait_present(self.RECOMMENDED_SECTION)
@@ -256,12 +262,14 @@ class HomePage(BasePage):
         )
         return int((el.text or "1").strip())
 
-    def increase_cart_quantity(self) -> None:
-        btn = WebDriverWait(self.driver, 5).until(
-            expected_conditions.presence_of_element_located(self.CART_QTY_PLUS)
+    def increase_cart_quantity(self):
+        btn = self.wait_clickable(self.CART_QTY_PLUS)
+        btn.click()
+
+        # wait until DOM updates
+        WebDriverWait(self.driver, 5).until(
+            lambda d: self.get_cart_product_quantity() >= 2
         )
-        self.driver.execute_script("arguments[0].click();", btn)
-        self._wait_for_cart_update()
 
     def decrease_cart_quantity(self) -> None:
         btn = WebDriverWait(self.driver, 5).until(

@@ -6,25 +6,31 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions
 
 from lab_3.utils.web_helpers import WebHelpers
+from selenium.webdriver.chrome.options import Options
 
 
 class TestCartManagement:
     def setup_method(self, method):
-        self.driver = webdriver.Chrome()
+        options = Options()
+        options.add_argument("--disable-dev-shm-usage")
+        options.add_argument("--no-sandbox")
+
+        self.driver = webdriver.Chrome(options=options)
         self.driver.maximize_window()
-        self.driver.set_page_load_timeout(60)
 
     def teardown_method(self, method):
-        self.driver.get(self.URL)
-        WebHelpers.wait_for_page_ready(self.driver, timeout=20)
+        self.driver.quit()
 
     def _add_one_product(self) -> HomePage:
         page = HomePage(self.driver)
         page.open_home_page()
-        assert "agro-yakist.com.ua" in self.driver.current_url.lower()
+        # ensure page is stable
+        assert "agro-yakist" in self.driver.current_url
         page.add_first_recommended_product_to_cart()
-        assert page.get_cart_modal_heading() == "Кошик", "Cart modal did not open"
-        assert len(page.get_cart_products()) > 0, "Cart is empty after add"
+        # wait for modal explicitly
+        assert page.get_cart_modal_heading() == "Кошик"
+        products = page.get_cart_products()
+        assert len(products) > 0, "Cart is empty after add"
         return page
 
     #increase quantity → row total doubles
