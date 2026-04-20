@@ -262,13 +262,14 @@ class HomePage(BasePage):
         )
         return int((el.text or "1").strip())
 
-    def increase_cart_quantity(self):
-        btn = self.wait_clickable(self.CART_QTY_PLUS)
-        btn.click()
-
-        # wait until DOM updates
+    def increase_cart_quantity(self) -> None:
+        btn = WebDriverWait(self.driver, 5).until(
+            expected_conditions.presence_of_element_located(self.CART_QTY_PLUS)
+        )
+        self.driver.execute_script("arguments[0].click();", btn)
+        # wait until qty input reflects the increment
         WebDriverWait(self.driver, 5).until(
-            lambda d: self.get_cart_product_quantity() >= 2
+            lambda d: int((d.find_element(*self.CART_QTY_INPUT).text or "0").strip()) >= 2
         )
 
     def decrease_cart_quantity(self) -> None:
@@ -276,7 +277,9 @@ class HomePage(BasePage):
             expected_conditions.presence_of_element_located(self.CART_QTY_MINUS)
         )
         self.driver.execute_script("arguments[0].click();", btn)
-        self._wait_for_cart_update()
+        WebDriverWait(self.driver, 5).until(
+            lambda d: int((d.find_element(*self.CART_QTY_INPUT).text or "2").strip()) <= 1
+        )
 
     def click_continue_shopping(self) -> None:
         btn = WebDriverWait(self.driver, 5).until(
