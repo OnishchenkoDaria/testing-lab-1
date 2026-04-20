@@ -51,7 +51,7 @@ class TestCartManagement:
             f"Row total {row_total} ≠ unit_price×2 ({unit_price * 2})"
         assert cart_total == pytest.approx(unit_price * 2, rel=0.01), \
             f"Cart summary {cart_total} ≠ unit_price×2 ({unit_price * 2})"
-'''
+
     #decrease quantity
     def test_decrease_quantity_updates_price(self):
         page = self._add_one_product()
@@ -79,7 +79,7 @@ class TestCartManagement:
         page.click_continue_shopping()
 
         WebDriverWait(self.driver, 6).until(
-            expected_conditions.invisibility_of_element_located((By.CSS_SELECTOR, ".mfp-container"))
+            EC.invisibility_of_element_located((By.CSS_SELECTOR, ".mfp-container"))
         )
         assert self.driver.current_url.rstrip("/") == HomePage.URL.rstrip("/"), \
             f"Expected homepage URL, got: {self.driver.current_url}"
@@ -95,4 +95,3 @@ class TestCartManagement:
         current = self.driver.current_url
         assert any(kw in current for kw in ["checkout", "order", "cart", "zamovlennia"]), \
             f"Checkout URL does not look right: {current}"
-'''
