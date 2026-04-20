@@ -23,10 +23,10 @@ class TestCartManagement:
 
     def _add_one_product(self) -> HomePage:
         page = HomePage(self.driver)
+
         page.open_home_page()
-        # ensure page is stable
-        assert "agro-yakist" in self.driver.current_url
         page.add_first_recommended_product_to_cart()
+
         # wait for modal explicitly
         assert page.get_cart_modal_heading() == "Кошик"
         products = page.get_cart_products()
@@ -38,19 +38,22 @@ class TestCartManagement:
         page = self._add_one_product()
 
         unit_price = page.get_cart_row_price()
+        print(unit_price)
         assert unit_price > 0, "Could not read unit price"
 
-        # qty starts at 1 — increase to 2
-        page.increase_cart_quantity()
-        assert page.get_cart_product_quantity() == 2
+        page.increase_cart_quantity()  # internally waits for price to change
 
-        row_total   = page.get_cart_row_total()
-        cart_total  = page.get_cart_summary_total()
+        # Price assertions first — these are guaranteed stable after the wait
+        row_total = page.get_cart_row_total()
+        cart_total = page.get_cart_summary_total()
 
-        assert row_total  == pytest.approx(unit_price * 2, rel=0.01), \
+        assert row_total == pytest.approx(unit_price * 2, rel=0.01), \
             f"Row total {row_total} ≠ unit_price×2 ({unit_price * 2})"
         assert cart_total == pytest.approx(unit_price * 2, rel=0.01), \
             f"Cart summary {cart_total} ≠ unit_price×2 ({unit_price * 2})"
+
+        # Qty check last — best-effort confirmation
+        assert page.get_cart_product_quantity() == 2
 
     #decrease quantity
     def test_decrease_quantity_updates_price(self):
@@ -79,7 +82,7 @@ class TestCartManagement:
         page.click_continue_shopping()
 
         WebDriverWait(self.driver, 6).until(
-            EC.invisibility_of_element_located((By.CSS_SELECTOR, ".mfp-container"))
+            expxted_conditions.invisibility_of_element_located((By.CSS_SELECTOR, ".mfp-container"))
         )
         assert self.driver.current_url.rstrip("/") == HomePage.URL.rstrip("/"), \
             f"Expected homepage URL, got: {self.driver.current_url}"

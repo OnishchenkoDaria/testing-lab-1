@@ -23,11 +23,11 @@ class HomePage(BasePage):
     CART_REMOVE_BUTTONS = (By.CSS_SELECTOR, ".product-table-body-row .remove")
     CART_PRODUCT_NAMES = (By.CSS_SELECTOR, ".product-table-body-row > .name")
     CART_PRODUCT_ROWS = (By.CSS_SELECTOR, "div.product-table-body-row")
-    CART_QTY_PLUS = (By.CSS_SELECTOR, "div.quantity div.inner div:first-child")
-    CART_QTY_MINUS = (By.CSS_SELECTOR, "div.quantity div.inner div:last-child")
+    CART_QTY_PLUS = (By.CSS_SELECTOR, "button#increase-quantity")
+    CART_QTY_MINUS = (By.CSS_SELECTOR, "button#decrease-quantity")
     CART_QTY_INPUT = (By.CSS_SELECTOR, "div.quantity div.inner div:nth-child(2)")
     CART_ROW_PRICE = (By.CSS_SELECTOR, "div.product-table-body-row div.price")
-    CART_ROW_TOTAL = (By.CSS_SELECTOR, "div.product-table-body-row div.total")
+    CART_ROW_TOTAL = (By.CSS_SELECTOR, "div.product-table-body-row div.total div")
     CART_SUMMARY = (By.CSS_SELECTOR, "div.totals div#total-order")
     CART_PRODUCT_NAME = (By.CSS_SELECTOR, "div.name-left a")
     CART_STOCK_TEXT = (By.CSS_SELECTOR, "div.stock-text")
@@ -225,10 +225,10 @@ class HomePage(BasePage):
         return self.find_all(self.CART_REMOVE_BUTTONS)
 
     def remove_first_product_from_cart(self):
-        remove_buttons = self.get_cart_remove_buttons()
-        if not remove_buttons:
-            raise AssertionError("No remove button found in cart.")
-        self.js_click(remove_buttons[0])
+        btn = WebDriverWait(self.driver, 5).until(
+            expected_conditions.presence_of_element_located(self.CART_REMOVE_BTN)
+        )
+        self.driver.execute_script("arguments[0].click();", btn)
 
     def _wait_for_cart_update(self, timeout: int = 5) -> None:
         """Wait until the totals stop changing (cart AJAX is done)."""
@@ -239,46 +239,45 @@ class HomePage(BasePage):
         )
 
     def is_cart_empty(self) -> bool:
-        try:
-            WebDriverWait(self.driver, 4).until(
-                lambda d: len(d.find_elements(*self.CART_PRODUCT_ROWS)) == 0
-                or any(
-                    e.is_displayed()
-                    for e in d.find_elements(*self.CART_EMPTY_MSG)
+        def is_cart_empty(self) -> bool:
+            try:
+                WebDriverWait(self.driver, 6).until(
+                    lambda d: len(d.find_elements(*self.CART_PRODUCT_ROWS)) == 0
                 )
-            )
-        except Exception:
-            pass  # fall through to explicit checks below
-
-        rows = self.driver.find_elements(*self.CART_PRODUCT_ROWS)
-        if rows:
-            return False
-        empty_els = self.driver.find_elements(*self.CART_EMPTY_MSG)
-        return len(empty_els) > 0 and empty_els[0].is_displayed()
+                return True
+            except Exception:
+                return False
 
     def get_cart_product_quantity(self) -> int:
         el = WebDriverWait(self.driver, 5).until(
-            expected_conditions.visibility_of_element_located(self.CART_QTY_INPUT)
+            expected_conditions.presence_of_element_located(self.CART_QTY_INPUT)
         )
-        return int((el.text or "1").strip())
+        # Try .text first, fall back to innerHTML via JS
+        text = el.text.strip()
+        if not text:
+            text = self.driver.execute_script(
+                "return arguments[0].innerHTML.trim();", el
+            )
+        return int(text or "1")
 
     def increase_cart_quantity(self) -> None:
+        old_total = self.driver.find_element(*self.CART_ROW_TOTAL).text
         btn = WebDriverWait(self.driver, 5).until(
             expected_conditions.presence_of_element_located(self.CART_QTY_PLUS)
         )
         self.driver.execute_script("arguments[0].click();", btn)
-        # wait until qty input reflects the increment
-        WebDriverWait(self.driver, 5).until(
-            lambda d: int((d.find_element(*self.CART_QTY_INPUT).text or "0").strip()) >= 2
+        WebDriverWait(self.driver, 8).until(
+            lambda d: d.find_element(*self.CART_ROW_TOTAL).text != old_total
         )
 
     def decrease_cart_quantity(self) -> None:
+        old_total = self.driver.find_element(*self.CART_ROW_TOTAL).text
         btn = WebDriverWait(self.driver, 5).until(
             expected_conditions.presence_of_element_located(self.CART_QTY_MINUS)
         )
         self.driver.execute_script("arguments[0].click();", btn)
-        WebDriverWait(self.driver, 5).until(
-            lambda d: int((d.find_element(*self.CART_QTY_INPUT).text or "2").strip()) <= 1
+        WebDriverWait(self.driver, 8).until(
+            lambda d: d.find_element(*self.CART_ROW_TOTAL).text != old_total
         )
 
     def click_continue_shopping(self) -> None:
