@@ -239,14 +239,13 @@ class HomePage(BasePage):
         )
 
     def is_cart_empty(self) -> bool:
-        def is_cart_empty(self) -> bool:
-            try:
-                WebDriverWait(self.driver, 6).until(
-                    lambda d: len(d.find_elements(*self.CART_PRODUCT_ROWS)) == 0
-                )
-                return True
-            except Exception:
-                return False
+        try:
+            WebDriverWait(self.driver, 6).until(
+                lambda d: len(d.find_elements(*self.CART_PRODUCT_ROWS)) == 0
+            )
+            return True
+        except Exception:
+            return False
 
     def get_cart_product_quantity(self) -> int:
         el = WebDriverWait(self.driver, 5).until(
