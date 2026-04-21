@@ -38,7 +38,6 @@ class TestCartManagement:
         page = self._add_one_product()
 
         unit_price = page.get_cart_row_price()
-        print(unit_price)
         assert unit_price > 0, "Could not read unit price"
 
         page.observe_cart_quantity(page.CART_QTY_PLUS)  # waits for price to change

@@ -25,9 +25,9 @@ class HomePage(BasePage):
     CART_PRODUCT_ROWS = (By.CSS_SELECTOR, "div.product-table-body-row")
     CART_QTY_PLUS = (By.CSS_SELECTOR, "button#increase-quantity")
     CART_QTY_MINUS = (By.CSS_SELECTOR, "button#decrease-quantity")
-    CART_QTY_INPUT = (By.CSS_SELECTOR, "div.quantity div.inner div:nth-child(2)")
-    CART_ROW_PRICE = (By.CSS_SELECTOR, "div.product-table-body-row div.price")
-    CART_ROW_TOTAL = (By.CSS_SELECTOR, "div.product-table-body-row div.total div")
+    CART_QTY_INPUT = (By.CSS_SELECTOR, "div#product-table-body.product-table-body div.product-table-body-row div.quantity div.inner div input.input-quantity")
+    CART_ROW_PRICE = (By.CSS_SELECTOR, "div#product-table-body.product-table-body div.product-table-body-row div.price div")
+    CART_ROW_TOTAL = (By.CSS_SELECTOR, "div#product-table-body.product-table-body div.product-table-body-row div.total div")
     CART_SUMMARY = (By.CSS_SELECTOR, "div.totals div#total-order")
     CART_PRODUCT_NAME = (By.CSS_SELECTOR, "div.name-left a")
     CART_STOCK_TEXT = (By.CSS_SELECTOR, "div.stock-text")
@@ -252,13 +252,9 @@ class HomePage(BasePage):
         el = WebDriverWait(self.driver, 5).until(
             expected_conditions.presence_of_element_located(self.CART_QTY_INPUT)
         )
-        # Try .text first, fall back to innerHTML via JS
-        text = el.text.strip()
-        if not text:
-            text = self.driver.execute_script(
-                "return arguments[0].innerHTML.trim();", el
-            )
-        return int(text or "1")
+        value = el.get_attribute("value")
+        assert value, f"Quantity input found but value was empty or None"
+        return int(value)
 
     def observe_cart_quantity(self, operator) -> None:
         old_total = self.driver.find_element(*self.CART_ROW_TOTAL).text
