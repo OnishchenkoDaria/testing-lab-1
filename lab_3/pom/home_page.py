@@ -33,8 +33,8 @@ class HomePage(BasePage):
     CART_STOCK_TEXT = (By.CSS_SELECTOR, "div.stock-text")
     CART_REMOVE_BTN = (By.CSS_SELECTOR, "div.remove input[type='button']")
     CART_EMPTY_MSG = (By.XPATH, "//*[contains(text(),'порожній') or contains(text(),'немає товарів')]")
-    BTN_CONTINUE = (By.XPATH, "//*[contains(text(),'Продовжити покупки')]")
-    BTN_CHECKOUT = (By.XPATH, "//*[contains(text(),'Оформлення замовлення')]")
+    BTN_CONTINUE = (By.CSS_SELECTOR, "input.close-button-bottom")
+    BTN_CHECKOUT = (By.CSS_SELECTOR, "input.go-button-bottom")
 
     PROMO_TEXT = (By.CSS_SELECTOR, "p:nth-child(1)")
     LANGUAGE_DROPDOWN = (By.CSS_SELECTOR, ".lang")
