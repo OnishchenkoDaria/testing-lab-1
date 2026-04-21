@@ -260,20 +260,10 @@ class HomePage(BasePage):
             )
         return int(text or "1")
 
-    def increase_cart_quantity(self) -> None:
+    def observe_cart_quantity(self, operator) -> None:
         old_total = self.driver.find_element(*self.CART_ROW_TOTAL).text
         btn = WebDriverWait(self.driver, 5).until(
-            expected_conditions.presence_of_element_located(self.CART_QTY_PLUS)
-        )
-        self.driver.execute_script("arguments[0].click();", btn)
-        WebDriverWait(self.driver, 8).until(
-            lambda d: d.find_element(*self.CART_ROW_TOTAL).text != old_total
-        )
-
-    def decrease_cart_quantity(self) -> None:
-        old_total = self.driver.find_element(*self.CART_ROW_TOTAL).text
-        btn = WebDriverWait(self.driver, 5).until(
-            expected_conditions.presence_of_element_located(self.CART_QTY_MINUS)
+            expected_conditions.presence_of_element_located(operator)
         )
         self.driver.execute_script("arguments[0].click();", btn)
         WebDriverWait(self.driver, 8).until(

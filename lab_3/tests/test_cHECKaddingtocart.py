@@ -41,9 +41,8 @@ class TestCartManagement:
         print(unit_price)
         assert unit_price > 0, "Could not read unit price"
 
-        page.increase_cart_quantity()  # internally waits for price to change
+        page.observe_cart_quantity(page.CART_QTY_PLUS)  # waits for price to change
 
-        # Price assertions first — these are guaranteed stable after the wait
         row_total = page.get_cart_row_total()
         cart_total = page.get_cart_summary_total()
 
@@ -61,8 +60,8 @@ class TestCartManagement:
 
         unit_price = page.get_cart_row_price()
 
-        page.increase_cart_quantity()
-        page.decrease_cart_quantity()
+        page.observe_cart_quantity(page.CART_QTY_PLUS)
+        page.observe_cart_quantity(page.CART_QTY_MINUS)
 
         assert page.get_cart_product_quantity() == 1
         assert page.get_cart_row_total() == pytest.approx(unit_price, rel=0.01), \
@@ -82,7 +81,7 @@ class TestCartManagement:
         page.click_continue_shopping()
 
         WebDriverWait(self.driver, 6).until(
-            expxted_conditions.invisibility_of_element_located((By.CSS_SELECTOR, ".mfp-container"))
+            expected_conditions.invisibility_of_element_located((By.CSS_SELECTOR, ".mfp-container"))
         )
         assert self.driver.current_url.rstrip("/") == HomePage.URL.rstrip("/"), \
             f"Expected homepage URL, got: {self.driver.current_url}"
