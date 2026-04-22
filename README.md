@@ -1,4 +1,4 @@
-## LAB 3 - TESTING own code implementation
+## LAB 1 - TESTING own code implementation
 
 Start all tests within **lab_1/tests/** folder
 * Command: `python -m pytest -v`
